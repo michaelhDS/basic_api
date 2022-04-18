@@ -10,9 +10,6 @@ from database import Base, engine
 import models
 import schemas
 
-# from database import Base, engine
-# import models
-# import schemas
 
 # Create the database
 Base.metadata.create_all(engine)
@@ -20,17 +17,12 @@ Base.metadata.create_all(engine)
 app = FastAPI()
 
 
-@app.get("/")
-def greetings():
-    return {"message": "Hello in todo list..."}
-
-
-@app.get("/list/{id}", response_model=schemas.ToDoResponse)
+@app.get("/list/{id}")  # response_model=schemas.ToDoResponse
 def get_item_by_id(id: int):
 
     session = Session(bind=engine, expire_on_commit=False)
 
-    todo_item = session.query(schemas.ToDoTask).get(id)
+    todo_item = session.query(models.ToDoItems).get(id)
 
     session.close()
 
@@ -53,12 +45,14 @@ def get_all_items_in_list():
     return todo_items_list
 
 
-@app.post("/list", response_model=schemas.ToDoTask, status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/list", status_code=status.HTTP_201_CREATED
+)  # response_model=schemas.ToDoTask,
 def create_item(todo_item: schemas.ToDoTask):
 
     session = Session(bind=engine, expire_on_commit=False)
 
-    todo_db = models.ToDoItems(task=todo_item.task)
+    todo_db = models.ToDoItems(task=todo_item.task, owner_id="user1")
 
     session.add(todo_db)
     session.commit()
@@ -78,7 +72,7 @@ def create_item(todo_item: schemas.ToDoTask):
 def update_item(id: int, task: str):
     session = Session(bind=engine, expire_on_commit=False)
 
-    todo_item = session.query(schemas.ToDoTask).get(id)
+    todo_item = session.query(models.ToDoItems).get(id)
 
     if todo_item:
         todo_item.task = task
@@ -95,7 +89,7 @@ def update_item(id: int, task: str):
 def delete_item(id: int):
 
     session = Session(bind=engine, expire_on_commit=False)
-    todo_item = session.query(schemas.ToDoTask).get(id)
+    todo_item = session.query(models.ToDoItems).get(id)
 
     if todo_item:
         session.delete(todo_item)
