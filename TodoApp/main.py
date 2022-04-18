@@ -7,7 +7,6 @@ from sqlalchemy import engine
 import database
 from sqlalchemy.orm import Session
 from database import Base, engine
-import models
 import schemas
 from uuid import uuid4
 
@@ -21,71 +20,45 @@ app = FastAPI()
 
 
 @app.get("/list/{id}")  # response_model=schemas.ToDoResponse
-def get_item_by_id(id: int):
+def get_item_by_id(uid: str):
 
-    session = Session(bind=engine, expire_on_commit=False)
+    table = db.Table("todo_api_xxw")
+    response = table.get_item(Key={"uid": uid})
 
-    todo_item = session.query(models.ToDoItems).get(id)
-
-    session.close()
-
-    if todo_item:
-        return todo_item
-    else:
-        raise HTTPException(
-            status_code=404, detail=f"Todo item {id} not found in a list"
-        )
+    return response
 
 
-@app.get("/list", response_model=List[schemas.ToDoResponse])
+@app.get(
+    "/list",
+)  # response_model=List[schemas.ToDoResponse]
 def get_all_items_in_list():
 
-    session = Session(bind=engine, expire_on_commit=False)
+    table = db.Table("todo_api_xxw")
+    response = table.scan()
 
-    todo_items_list = session.query(models.ToDoItems).all()
-    # print(todo_items_list)
-    session.close()
-    return todo_items_list
-
-
-@app.post(
-    "/list", status_code=status.HTTP_201_CREATED
-)  # response_model=schemas.ToDoTask,
-def create_item(todo_item: schemas.ToDoTask):
-
-    session = Session(bind=engine, expire_on_commit=False)
-
-    todo_db = models.ToDoItems(task=todo_item.task, owner_id="user1")
-
-    session.add(todo_db)
-    session.commit()
-
-    # add it to the session and commit it
-    session.add(todo_db)
-    session.commit()
-    session.refresh(todo_db)
-
-    # close the session
-    session.close()
-
-    return todo_db
+    return response
 
 
 @app.put("/list/{id}")
-def update_item(id: int, task: str):
-    session = Session(bind=engine, expire_on_commit=False)
+def update_item(uid: str, task: str):
 
-    todo_item = session.query(models.ToDoItems).get(id)
+    table = db.Table("todo_api_xxw")
 
-    if todo_item:
-        todo_item.task = task
-        session.commit()
-        session.close()
-        return {"item_id": id, "status": f"succesfuly change to: '{task}'"}
+    response = table.update_item(  # update single item
+        Key={
+            "uid": uid
+        },  # using partition key specifying which attributes will get updated
+        UpdateExpression="""                
+                set
+                    task=:task
+            """,
+        ExpressionAttributeValues={  # values defined in here will get injected to update expression
+            ":task": task
+        },
+        ReturnValues="UPDATED_NEW",  # return the newly updated data point
+    )
 
-    else:
-        session.close()
-        raise HTTPException(status_code=404, detail=f"Item id {id} not found")
+    return response
 
 
 @app.post(
@@ -102,16 +75,9 @@ def create_item2x(todo_item: schemas.ToDoResponse):
 
 
 @app.delete("/list/{id}")
-def delete_item(id: int):
+def delete_item(uid: str):
 
-    session = Session(bind=engine, expire_on_commit=False)
-    todo_item = session.query(models.ToDoItems).get(id)
+    table = db.Table("todo_api_xxw")
+    response = table.delete_item(Key={"uid": uid})
 
-    if todo_item:
-        session.delete(todo_item)
-        session.commit()
-        session.close()
-        return {"response": f"Item id {id} was succesfully deleted"}
-
-    else:
-        raise HTTPException(status_code=404, detail=f"Todo item {id} not found")
+    return response
