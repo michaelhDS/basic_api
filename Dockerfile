@@ -8,4 +8,4 @@ COPY ./TodoApp /code/app
 
 WORKDIR /code/app
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:api.app", "--host", "0.0.0.0", "--port", "80"]
