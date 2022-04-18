@@ -17,8 +17,6 @@ class CreateUser(BaseModel):
 
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 Base.metadata.create_all(engine)
 
 app = FastAPI()

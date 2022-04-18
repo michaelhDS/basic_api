@@ -6,20 +6,21 @@ from fastapi import FastAPI, status, HTTPException
 from sqlalchemy import engine
 import database
 from sqlalchemy.orm import Session
-from database import Base, engine
 import schemas
 from uuid import uuid4
 
-
-# Create the database
-Base.metadata.create_all(engine)
 
 db = database.initialize_db()
 
 app = FastAPI()
 
 
-@app.get("/list/{id}")  # response_model=schemas.ToDoResponse
+@app.get("/")
+def hello():
+    return {"message": "Hello World"}
+
+
+@app.get("/todo/{id}")
 def get_item_by_id(uid: str):
 
     table = db.Table("todo_api_xxw")
@@ -29,8 +30,8 @@ def get_item_by_id(uid: str):
 
 
 @app.get(
-    "/list",
-)  # response_model=List[schemas.ToDoResponse]
+    "/todo/all",
+)
 def get_all_items_in_list():
 
     table = db.Table("todo_api_xxw")
@@ -39,12 +40,12 @@ def get_all_items_in_list():
     return response
 
 
-@app.put("/list/{id}")
-def update_item(uid: str, task: str):
+@app.put("/todo/{id}")
+def update_item(uid: str, task_update: str):
 
     table = db.Table("todo_api_xxw")
 
-    response = table.update_item(  # update single item
+    response = table.update_item(
         Key={
             "uid": uid
         },  # using partition key specifying which attributes will get updated
@@ -53,7 +54,7 @@ def update_item(uid: str, task: str):
                     task=:task
             """,
         ExpressionAttributeValues={  # values defined in here will get injected to update expression
-            ":task": task
+            ":task": task_update
         },
         ReturnValues="UPDATED_NEW",  # return the newly updated data point
     )
@@ -61,10 +62,8 @@ def update_item(uid: str, task: str):
     return response
 
 
-@app.post(
-    "/create", status_code=status.HTTP_201_CREATED
-)  # response_model=schemas.ToDoTask,
-def create_item2x(todo_item: schemas.ToDoResponse):
+@app.post("/create", status_code=status.HTTP_201_CREATED)
+def create_item(todo_item: schemas.ToDoResponse):
 
     table = db.Table("todo_api_xxw")
 
