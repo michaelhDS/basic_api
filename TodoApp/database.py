@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 import boto3
 from boto3.resources.base import ServiceResource
 import os
+import pathlib
+from dotenv import load_dotenv
 
 # Create a sqlite engine instance
 engine = create_engine("sqlite:///todo.db")
@@ -15,10 +17,14 @@ Base = declarative_base()
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
+base_dir = pathlib.Path(__file__).parent
+load_dotenv(base_dir.joinpath(".env"))
+
+
 class Config:
-    DB_REGION_NAME = "eu-central-1"
-    DB_ACCESS_KEY_ID = "AKIAYB7TY7WS7DMWNQ6R"
-    DB_SECRET_ACCESS_KEY = "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"
+    DB_REGION_NAME = os.getenv("DB_REGION_NAME")
+    DB_ACCESS_KEY_ID = os.getenv("DB_ACCESS_KEY_ID")
+    DB_SECRET_ACCESS_KEY = os.getenv("DB_SECRET_ACCESS_KEY")
 
 
 def initialize_db() -> ServiceResource:
