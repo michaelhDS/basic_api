@@ -10,6 +10,10 @@ from database import Base, engine
 import models
 import schemas
 
+# from database import Base, engine
+# import models
+# import schemas
+
 # Create the database
 Base.metadata.create_all(engine)
 
