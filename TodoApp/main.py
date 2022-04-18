@@ -23,7 +23,7 @@ def get_item_by_uid(uid: str):
 
 
 @app.get(
-    "/todo/all",
+    "/todo_all",
 )
 def get_all_items_in_list():
 
