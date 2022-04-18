@@ -9,6 +9,3 @@ class ToDoTask(BaseModel):
 class ToDoResponse(BaseModel):
     uid: Optional[str] = None
     task: str
-
-    class Config:
-        orm_mode = True
