@@ -1,8 +1,3 @@
-from pydantic import BaseModel
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 import boto3
 from boto3.resources.base import ServiceResource
 import os
@@ -12,6 +7,7 @@ from dotenv import load_dotenv
 
 base_dir = pathlib.Path(__file__).parent
 load_dotenv(base_dir.joinpath(".env"))
+
 
 class Config:
     DB_REGION_NAME = os.getenv("DB_REGION_NAME")

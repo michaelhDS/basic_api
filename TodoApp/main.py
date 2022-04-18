@@ -1,17 +1,10 @@
-from email import message
-import imp
-from typing import List
-from urllib import response
-from fastapi import FastAPI, status, HTTPException
-from sqlalchemy import engine
-import database
-from sqlalchemy.orm import Session
-import schemas
+from fastapi import FastAPI, status
 from uuid import uuid4
+import database
+import schemas
 
 
 db = database.initialize_db()
-
 app = FastAPI()
 
 
@@ -21,7 +14,7 @@ def hello():
 
 
 @app.get("/todo/{id}")
-def get_item_by_id(uid: str):
+def get_item_by_uid(uid: str):
 
     table = db.Table("todo_api_xxw")
     response = table.get_item(Key={"uid": uid})
