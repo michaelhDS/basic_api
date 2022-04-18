@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class ToDoTask(BaseModel):
@@ -6,7 +7,7 @@ class ToDoTask(BaseModel):
 
 
 class ToDoResponse(BaseModel):
-    id: int
+    uid: Optional[str] = None
     task: str
 
     class Config:

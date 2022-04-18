@@ -9,10 +9,13 @@ from sqlalchemy.orm import Session
 from database import Base, engine
 import models
 import schemas
+from uuid import uuid4
 
 
 # Create the database
 Base.metadata.create_all(engine)
+
+db = database.initialize_db()
 
 app = FastAPI()
 
@@ -83,6 +86,19 @@ def update_item(id: int, task: str):
     else:
         session.close()
         raise HTTPException(status_code=404, detail=f"Item id {id} not found")
+
+
+@app.post(
+    "/create", status_code=status.HTTP_201_CREATED
+)  # response_model=schemas.ToDoTask,
+def create_item2x(todo_item: schemas.ToDoResponse):
+
+    table = db.Table("todo_api_xxw")
+
+    todo_item.uid = str(uuid4())
+    response = table.put_item(Item=todo_item.dict())
+
+    return response
 
 
 @app.delete("/list/{id}")

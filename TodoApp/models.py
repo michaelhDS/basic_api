@@ -13,6 +13,17 @@ class Users(Base):
     hash_password = Column(String)
     todos = relationship("ToDoItems", back_populates="owner")
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "fullname": "John Doe",
+                "email": "jdoe@x.edu.ng",
+                "course_of_study": "Water resources engineering",
+                "year": 2,
+                "gpa": "3.0",
+            }
+        }
+
 
 class ToDoItems(Base):
     __tablename__ = "todo_items_list"
